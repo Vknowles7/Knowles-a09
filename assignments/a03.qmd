@@ -1,0 +1,45 @@
+---
+title: "a03"
+author: "Victor Knowles"
+format: html
+---
+```{r}
+library(dplyr)
+library(tidyr)
+library(readr)
+```
+#Introduction
+Data cleaning and wrangling are important steps in data science because raw datasets can contain inconsistencies or formats to make the analysis difficult. In a03 I analyzed commercial salmon catch data from Alaska to demonstrate how the dplyr and tidyr packages can be used to clean, restructure, and summarize data for analysis.
+
+#Data
+The dataset used in this analysis comes from the Alaska Department of Fish and Game commercial salmon catch records available through the KNB data repository. The dataset was accessed using the read_csv function from the URL provided in step 2.
+```{r}
+
+catch_original <- read_csv("https://knb.ecoinformatics.org/knb/d1/mn/v2/object/df35b.302.1")
+#This line imports the salmon catch dataset from the online repository into R.
+
+mean_region <- catch_original %>%
+  select(-All, -notesRegCode) %>% 
+  mutate(Chinook = if_else(Chinook == "I", "1", Chinook)) %>% 
+  mutate(Chinook = as.numeric(Chinook)) %>% 
+  pivot_longer(-c(Region, Year), 
+               names_to = "species", 
+               values_to = "catch") %>%
+  mutate(catch = catch*1000) %>% 
+  group_by(Region) %>% 
+  summarize(mean_catch = mean(catch)) %>% 
+  arrange(desc(mean_catch))
+
+head(mean_region)
+#select() removes columns that are not needed for analysis.
+#mutate() fixes the Chinook column by replacing incorrect values and converting it to numeric.
+#pivot_longer() reshapes the dataset from wide format to long format.
+#mutate() converts catch values from thousands of fish to total fish.
+#group_by() groups the data by region.
+#summarize() calculates the average catch for each region.
+#arrange() sorts the regions from highest to lowest mean catch.
+# head() displays the first six rows of the mean_region dataset so we can quickly see the results of the analysis.
+```
+
+#Discussion
+The results show that some regions have higher average salmon catch than others. Regions such as SSE and BRB have the largest catches on average, which suggests that these areas support higher salmon levels compared to the other regions in the dataset.
