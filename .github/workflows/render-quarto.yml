@@ -1,7 +1,11 @@
 name: Render Quarto (PR)
 
 on:
+<<<<<<< a01
   workflow_dispatch:
+=======
+  workflow_dispatch
+>>>>>>> main
 
 jobs:
   render:
