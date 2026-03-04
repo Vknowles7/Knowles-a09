@@ -17,6 +17,7 @@ Source: <https://learning.nceas.ucsb.edu/2024-10-coreR/session_05.html>
 
 ## About the data
 
+
 The seawater chemistry dataset used here is `BGchem2008data.csv` (downloaded previously in the course).
 
 -   Date downloaded: August 8, 2025
@@ -40,7 +41,7 @@ Quarto runs R in the same way as a script: objects only exist after the chunks t
 Using `here()` is a convenient way to build paths relative to your project root (e.g., your `.qmd` might live in `scripts/` while data lives in `data/`).
 
 ```{r}
-bg_chem <- read_csv(here::here("data", "BGchem2008data.csv"))
+bg_chem <- read_csv(here::here("data","raw data", "BGchem2008data.csv"))
 ```
 
 (Optional) Quick peek at the data:
@@ -95,7 +96,8 @@ plot(
 
 # Conclusion
 
-In this mini-analysis, we:
+In this mini-analysis, we: 
+#The observed nitrogen-to-phosphate ratio (~6:1) is lower than the canonical Redfield ratio of 16:1 suggesting relatively nitrogen-limited conditions in this dataset.
 
 -   Loaded packages in a dedicated setup chunk
 -   Read in `BGchem2008data.csv` using a project-root-relative path (`here()`)

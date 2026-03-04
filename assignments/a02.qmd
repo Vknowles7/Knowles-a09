@@ -1,0 +1,37 @@
+---
+title: "Examining Tidy Data: MMS Fluorescence Dataset"
+author: "Victor Knowles"
+date: "2026-03-03"
+format:
+  html:
+    toc: true
+execute:
+  warning: false
+  message: false
+---
+# trigger workflow rerun
+# Introduction
+
+This document examines an MMS fluorescence dataset to determine whether it is tidy and to evaluate its structure, including potential primary and foreign keys.
+
+# Data
+
+```{r}
+library(readr)
+library(dplyr)
+
+mms_data <- read_csv("../data/raw data/mms_fluorescence.csv")
+
+# remove any completely empty columns (in case the CSV exported blanks)
+mms_data <- mms_data %>% select(where(~ !all(is.na(.x))))
+
+glimpse(mms_data)
+```
+
+#Analysis
+
+The dataset follows tidy data principles because each row represents a single biological replicate and each column represents a distinct variable, with one value per cell. Categorical variables (Sample ID, Condition, Tissue) and quantitative measurements (Brain Mean, Background Mean, Corrected Mean, Area, and IntDen) are separated into their own columns, making the structure appropriate for analysis in R. The Sample ID column serves as a primary key because it uniquely identifies each observation. No foreign keys are present because the dataset is a single standalone table and does not reference additional relational tables.
+
+#Conclusion
+
+In summary, the MMS fluorescence dataset follows tidy data principles, with each row representing a single biological replicate and each column representing a distinct variable. The Sample ID column serves as a primary key because it uniquely identifies each observation, and no foreign keys are present since the dataset exists as a single standalone table. Overall, the structure of the dataset supports clear and reproducible analysis in R.
