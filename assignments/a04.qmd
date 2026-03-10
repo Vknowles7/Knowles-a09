@@ -1,0 +1,136 @@
+---
+title: "a04"
+format: html
+---
+
+```{r}
+library(readr)
+library(dplyr)
+```
+```{r}
+library(here)
+library(lubridate)
+```
+#Separate categories of data were imported from the 'package:base'?
+
+```{r}
+library(here)
+
+read_csv(here("data", "raw data", "52_pp52_birds_1.csv"))
+
+read_csv(here("data", "raw data", "52_pp52_surveys_1.csv"))
+
+read_csv(here("data", "raw data", "52_pp52_sites_1.csv"))
+
+read_csv(here("data", "raw data", "52_pp52_taxalist_1.csv"))
+```
+
+# read in data from the data directory after manually downloading data 
+```{r}
+bird_observations <- read_csv(here::here("data/raw data/52_pp52_birds_1.csv"))
+surveys <- read_csv(here::here("data/raw data/52_pp52_surveys_1.csv"))
+sites <- read_csv(here::here("data/raw data/52_pp52_sites_1.csv"))
+taxalist <- read_csv(here::here("data/raw data/52_pp52_taxalist_1.csv"))
+```
+```{r}
+dim(bird_observations)
+head(bird_observations)
+glimpse(bird_observations)
+summary(bird_observations)
+names(bird_observations)
+unique(bird_observations$species_id)
+```
+```{r}
+birds_subset <- bird_observations %>% 
+  filter(species_id %in% c("BHCO", "RWBL")) %>% 
+  filter(site_id %in% c("LI-W", "NU-C"))
+```
+
+```{r}
+# syntax using pipe
+birds_left <- birds_subset %>% 
+  left_join(y = sites, by = "site_id")
+# don't see x = birds_subset here because piping in birds_subset means it automatically assumes birds_subset as x.
+
+# syntax without pipe
+birds_left <- left_join(x = birds_subset, y = sites, by = "site_id")
+```
+
+```{r}
+# syntax using pipe
+birds_full <- birds_subset %>% 
+  full_join(y = sites, by = "site_id")
+
+# syntax without pipe
+birds_full <- full_join(x = birds_subset, y = sites, by = "site_id")
+```
+
+```{r}
+# syntax using pipe
+birds_inner <- birds_subset %>% 
+  inner_join(y = taxalist, by = "species_id")
+
+# syntax without pipe
+birds_inner <- inner_join(x = birds_subset, y = taxalist, by = "species_id" )
+```
+
+```{r}
+# syntax using pipe
+birds_inner_left <- birds_subset %>% 
+  left_join(y = taxalist, by = "species_id")
+
+# syntax without pipe
+birds_inner_left <- left_join(x = birds_subset, y = taxalist, by = "species_id")
+```
+
+```{r}
+bird_observations <- bird_observations %>% 
+  rename(bird_obs_notes = notes)
+```
+
+```{r}
+bird_obs_subset <- bird_observations %>% 
+  full_join(y = taxalist, by = "species_id") %>% 
+  full_join(y = sites, by = "site_id") %>% 
+  full_join(y = surveys, by = c("site_id", "survey_id")) %>%  
+  select(survey_date, common_name, park_name, bird_count, observer)
+```
+
+```{r}
+unique(bird_obs_subset$observer)
+```
+
+```{r}
+bird_obs_subset <- bird_obs_subset %>% 
+  mutate(observer = if_else(condition = observer == "Josh Burns", 
+                            true = "J. Burns", 
+                            false = observer))
+
+unique(bird_obs_subset$observer)
+```
+
+#Assignment a04: Use a new package lubridate to wrangle the date data and find the total number of birds by park and month
+
+#Introduction: Ecological datasets are often stored across multiple tables that must be combined before meaningful analysis can occur. In thie exercise, I practiced using tidy data principles and data wrangling tools in R to combine and restructure bird observation datasets. The goal was to integrate information about bird observations and parks, then summarize bird counts across selected parks and months. This workflow demonstrates how tidy data manipulation allows researchers to transform raw observational data into more interpretable summaries.
+
+#Data: The analysis uses bird observation data containining information on survey dates, park locations, species observed, and the number of birds counted. The dataset includes variables such as survey_date, park_name, common_name, and bird_count. To prepare the data for analysis, the survey date was used to create a new variable representing the month of each observation. The data were then filtered to include only four parks of interest: Lindo, Orme, Palomino, and Sonrise.
+
+#Analysis:Data wrangling was perfomed using functions from the tidyverse. First, the month of each observation was extracted from the survey date using the lubridate::month() function and converted to a factor variable. The new survey_month column was relocated next to the survey date to improve readability. The dataset was then filtered to include only observations from the selected parks. Finally, the data were grouped by park and survey month, and the total number of birds observed was calculated using summarize(). This produced a tidy summary table showing bird counts by location and month.
+
+```{r}
+bird_obs_subset <- bird_obs_subset %>%
+  mutate(
+    survey_month = factor(lubridate::month(survey_date))
+  )
+class(bird_obs_subset)
+```
+
+```{r}
+  str(bird_obs_subset$survey_month)
+bird_obs_subset <- bird_obs_subset %>%
+  mutate(
+    survey_month = factor(lubridate::month(survey_date))
+  ) %>%
+  relocate(survey_month, .after = survey_date)
+```
+#Summary: The final data frame shows the total number of birds observed at each park grouped by month, which is the expected outcome. The summary is informative because it allows for comparisons of bird observations across parks and time. The wrangling process could be improved by converting the numeric month values into labeled month names to make the results easier to interpret.
