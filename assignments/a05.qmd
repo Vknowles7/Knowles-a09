@@ -1,0 +1,118 @@
+---
+title: "a05:Data Visualization: ggplot2"
+author: "Victor Knowles"
+date: "2026-03-16"
+---
+#Introduction: This report visualizes visitor activity at restoration locations in the Sacramento-San Joaquin Delta. The goal of this analysis is to explore patterns in visitor types across different restoration sites and visualize their geographic locations.
+
+#Overview
+```{r}
+library (readr)
+library(dplyr)
+library(tidyr)
+library(forcats) # makes working with factors easier
+library(ggplot2)
+library(leaflet) # interactive maps
+library(DT) # interactive tables
+library(scales) # scale functions for visualization
+library(janitor) # expedite cleaning and exploring data
+library(viridis) # colorblind friendly color palette
+```
+
+#Getting the data ready
+```{r}
+# read in data from the data directory after manually downloading data 
+delta_visits_raw <- read_csv(here::here("data/raw data/Socioecological_monitoring_data.csv"))
+```
+```{r}
+delta_visits <- delta_visits_raw %>%
+  janitor::clean_names()
+```
+
+```{r}
+visits_long <- delta_visits %>%
+  pivot_longer(cols = c(sm_boat, med_boat, lrg_boat,
+                        bank_angler, scientist, cars),
+               names_to = "visitor_type",
+               values_to = "quantity") %>%
+  rename(restore_loc = eco_restore_approximate_location) %>%
+  select(-notes)
+```
+
+```{r}
+daily_visits_loc <- visits_long %>%
+  group_by(restore_loc, date, visitor_type) %>%
+  summarise(daily_visits = sum(quantity))
+```
+
+#Plotting with ggplot2
+```{r}
+# Line 165 in wrangling file
+# use cleaned and summarized dataset
+ggplot(data = daily_visits_loc, 
+       
+# Map variables to axes and colors
+aes(
+  y = restore_loc,      # restoration locations on y-axis
+  x = daily_visits,     # number of visits on x-axis
+  fill = visitor_type   # color bars by visitor type
+) 
+) +
+  
+  #Draw bar chart
+    geom_col() +
+    labs(x = "Number of Visits", # label x-axis
+         y = "Restoration Location", # label y-axis
+         fill = "Type of Visitor", # legend title
+         title = "Total Number of Visits to Delta Restoration Areas by visitor type",
+         subtitle = "Sum of all visits during study period") +
+  
+  # Apply clean theme
+    theme_bw() +
+  
+  # Adjust legend and remove axis ticks
+    theme(legend.position = "bottom", # move legend to bottom
+          axis.ticks.y = element_blank()) # remove y-axis ticks
+```
+#Plot description: The following plot shows the total number of visit to each restoration location, grouped by visitor type. This visualization helps compare how different visitor groups interact with restoration areas.
+
+#Analysis: The bar plot shows that visitor activity varies across restoration locations, with some sites receiving substantially higher numbers of visits than others. Different visitor types also contribute unevenly to total visitation, with certain categories such as boats or anglers appearing more frequently at specific locations. This suggests that restoration areas are used diffently depending on both location and visitor type.
+
+```{r}
+# Create dataset of unique restoration locations
+locations <- visits_long %>%
+  distinct(restore_loc, .keep_all = TRUE) %>%   # keep one row per location
+  select(restore_loc, latitude, longitude)      # keep only relevant columns
+
+# Create interactive map
+leaflet(locations) %>%
+
+  # Add satellite imagery basemap
+  addProviderTiles(providers$Esri.WorldImagery) %>%
+
+  # Add label overlay
+  addProviderTiles(providers$CartoDB.PositronOnlyLabels) %>%
+
+  # Add circular markers for each location
+  addCircleMarkers(
+    lng = ~longitude,        # longitude (x-coordinate)
+    lat = ~latitude,         # latitude (y-coordinate)
+    popup = ~restore_loc,    # label shown when clicked
+    radius = 5,              # marker size
+
+    # Fill properties
+    fillColor = "salmon",    # marker color
+    fillOpacity = 1,         # marker opacity
+
+    # Border properties
+    stroke = TRUE,           # enable border
+    weight = 0.5,            # border thickness
+    color = "white",         # border color
+    opacity = 1              # border opacity
+  )
+```
+#Map description: The map below displays the geographic locations of the restoration sites included in the dataset.Each marker represents a restoration location in the Sacramento-San Joaquin Delta.
+
+#Analysis: The map provides spatial context for these patterns by showing where each restoration site is located within the Delta region. Clusters of point show the areas with multiple restoration sites, which may correspond to regions of higher ecological activity or accessibility.
+
+#Conclusion: Overall, the data plot and map highlight both the variation in visitor activity and the geographic distribution of restoration sites in the Delta. Together, the plot and map provide insight into how human activity is distributed across restoration areas, which could be useful for management and conservation planning.
