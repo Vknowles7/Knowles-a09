@@ -4,7 +4,7 @@ author: "Victor Knowles"
 date: "2026-03-16"
 ---
 #Introduction: This report visualizes visitor activity at restoration locations in the Sacramento-San Joaquin Delta. The goal of this analysis is to explore patterns in visitor types across different restoration sites and visualize their geographic locations.
-
+ 
 #Overview
 ```{r}
 library (readr)
@@ -21,7 +21,10 @@ library(viridis) # colorblind friendly color palette
 
 #Getting the data ready
 ```{r}
-# read in data from the data directory after manually downloading data 
+# read in data from the data directory after manually downloading data, published 8/6/2020
+#Citation:
+#Kraus-Polk, A. and B. Milligan. 2020. Sacramento-San Joaquin Delta Socioecological Monitoring ver 1. Environmental Data Initiative. https://doi.org/10.6073/pasta/e5bba3945d7f94c3005a7f8c38d00802 (Accessed 2026-04-07).
+
 delta_visits_raw <- read_csv(here::here("data/raw data/Socioecological_monitoring_data.csv"))
 ```
 ```{r}
