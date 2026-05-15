@@ -1,5 +1,10 @@
 ---
-title: "GitHub Pages Example"
+title: "My BIOL 806 Portfolio"
+author: Victor Knowles
+editor: visual
 format: html
 ---
 
+## Course Lessons
+- [Tidy Data](a02.html)
+- [Cleaning and Wrangling Data](a03.html)
