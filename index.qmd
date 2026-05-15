@@ -8,3 +8,4 @@ format: html
 ## Course Lessons
 - [Tidy Data](a02.html)
 - [Cleaning and Wrangling Data](a03.html)
+.
