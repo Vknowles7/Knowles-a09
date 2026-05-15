@@ -1,5 +1,5 @@
 ---
-title: "806Portfolio"
+title: "My BIOL 806 Portfolio"
 author: Victor Knowles
 editor: visual
 format: html
