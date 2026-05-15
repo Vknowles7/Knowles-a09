@@ -6,5 +6,5 @@ format: html
 ---
 
 ## Course Lessons
-- [Tidy Data](a02.html)
+- [Joins](a04.html)
 - [Cleaning and Wrangling Data](a03.html)
